@@ -13,9 +13,11 @@ const client = new pg.Client({
 const name = process.argv[2];
 
 const query = {
-  // give the query a unique name
   name: 'fetch-user',
-  text: 'SELECT * FROM famous_people WHERE first_name ILIKE $1::text',
+  text: `SELECT count(*), first_name, last_name, birthdate FROM famous_people
+          WHERE first_name ILIKE $1::text
+          GROUP BY id;
+          `,
   values:  [`${name}`]
 }
 
@@ -28,7 +30,17 @@ client.connect((err) => {
     if (err) {
       return console.error("error running query", err);
     }
-    console.log(result.rows[0]); //output: 1
+    var array = result.rows;
+    var output = {};
+
+    for (let i = 0; i < array.length; i++){
+      let year = array[i].birthdate.getFullYear();
+      let month = array[i].birthdate.getMonth();
+      let day = array[i].birthdate.getDate();
+      output[i + 1] = `${array[i].first_name} ${array[i].last_name}, born ${year}-${month}-${day}`
+    }
+
+    console.log(output);
     client.end();
   });
 });
