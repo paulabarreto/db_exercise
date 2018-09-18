@@ -21,6 +21,18 @@ const query = {
   values:  [`${name}`]
 }
 
+function outputSearchResult(array){
+  var output = `Searching...\nFound ${array.length} person(s) by the name ${name}:\n`;
+
+  for (let i = 0; i < array.length; i++){
+    var event = array[i].birthdate.toJSON().toString();
+    var date = event.slice(0, 10);
+    output += `- ${i + 1}: ${array[i].first_name} ${array[i].last_name}, born ${date}\n`
+  }
+
+  return output;
+}
+
 
 client.connect((err) => {
   if (err) {
@@ -30,16 +42,8 @@ client.connect((err) => {
     if (err) {
       return console.error("error running query", err);
     }
-    var array = result.rows;
-    var output = `Searching...\nFound ${array.length} person(s) by the name ${name}:\n`;
-
-    for (let i = 0; i < array.length; i++){
-      var event = array[i].birthdate.toJSON().toString();
-      var date = event.slice(0, 10);
-      output += `- ${i + 1}: ${array[i].first_name} ${array[i].last_name}, born ${date}\n`
-    }
-
-    console.log(output);
+    let outputResult = outputSearchResult(result.rows);
+    console.log(outputResult);
     client.end();
   });
 });
